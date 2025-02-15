@@ -46,7 +46,7 @@ const Home = () => {
                     1000,
                     "Full Stack Developer",
                     1000,
-                    "Mobile Developer",
+                    "Mobile App Developer",
                     1000,
                     "MERN Stack Developer",
                     1000,

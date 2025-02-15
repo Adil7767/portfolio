@@ -29,7 +29,7 @@ const Services = () => {
           <h4 className="mt-16 text-3xl font-semibold text-blue-500">
             What I Provide
           </h4>
-          <div className="mt-8 flex md:flex-row justify-between flex-col md:items-stretch items-center ">
+          <div className="mt-8 gap-2 flex md:flex-row justify-between flex-col md:items-stretch items-center ">
             {serviceData.map((el) => (
               <motion.div
                 initial="hidden"
