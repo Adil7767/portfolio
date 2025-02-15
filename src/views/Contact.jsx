@@ -20,10 +20,10 @@ const Contact = () => {
     // Sending email via EmailJS
     emailjs
       .send(
-        "service_lb7bbpq",    // Your Service ID from EmailJS
+        "service_hqkafwb",    // Your Service ID from EmailJS
         "template_26faq7k",   // Your Template ID from EmailJS
         formData,             // Form data to send
-      "OELUafVoJm-2P7ALBnav"        // Your User ID from EmailJS
+      "OELUafVoJm-2P7ALB"        // Your User ID from EmailJS
       )
       .then(
         (response) => {
@@ -32,6 +32,7 @@ const Contact = () => {
         },
         (error) => {
           alert("Error sending message");
+          console.log(error,'error')
           console.log(error.text);
         }
       );

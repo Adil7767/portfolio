@@ -58,7 +58,7 @@ const Navbar = () => {
                   : "text-xl font-medium text-decoration-none whitespace-nowrap text-white"
               }
             >
-              {`<ꪖꪖƙꪖకꫝ కꫝꪖꪹꪑꪖ/>`}
+              {`<ꪖᦔꪱꪶ ꪑꪊకꪻꪖᠻꪖ/>`}
             </a>
           </div>
           <div class="hidden justify-between items-center w-full md:flex md:w-auto ">
