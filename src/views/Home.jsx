@@ -12,7 +12,7 @@ const Home = () => {
   const darkMode = theme.state.darkMode;
   const downloadResume = () => {
     const link = document.createElement("a");
-    const pdfUrl = "https://drive.google.com/file/d/1SB4rMnQDMEiOwiz3yjbXHVnIG6yRIV83/view?usp=drivesdk";
+    const pdfUrl = "https://drive.google.com/file/d/1JWgiA8-BY2N7NKYMROjB8EaVafZQjzVX/view?usp=sharing";
     link.href = pdfUrl;
     link.download = "adil's_resume.pdf"; // specify the filename
     document.body.appendChild(link);
