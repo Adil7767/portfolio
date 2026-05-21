@@ -55,6 +55,7 @@ async function topProjects(from?: Date, limit = 8) {
     inArray(analyticsEvents.eventType, [
       ANALYTICS_EVENTS.PROJECT_LINK_CLICK,
       ANALYTICS_EVENTS.PROJECT_READ_MORE,
+      ANALYTICS_EVENTS.PROJECT_DETAIL_VIEW,
     ]),
   ];
   if (from) conditions.push(gte(analyticsEvents.createdAt, from));
@@ -95,10 +96,12 @@ export async function getAnalyticsSummary() {
     resumeDownloads: pick(map, ANALYTICS_EVENTS.RESUME_DOWNLOAD),
     projectsLoadMore: pick(map, ANALYTICS_EVENTS.PROJECTS_LOAD_MORE),
     projectReadMore: pick(map, ANALYTICS_EVENTS.PROJECT_READ_MORE),
+    projectDetailViews: pick(map, ANALYTICS_EVENTS.PROJECT_DETAIL_VIEW),
     projectLinkClicks: pick(map, ANALYTICS_EVENTS.PROJECT_LINK_CLICK),
     contactSubmits: pick(map, ANALYTICS_EVENTS.CONTACT_SUBMIT),
     projectEngagement:
       pick(map, ANALYTICS_EVENTS.PROJECT_READ_MORE) +
+      pick(map, ANALYTICS_EVENTS.PROJECT_DETAIL_VIEW) +
       pick(map, ANALYTICS_EVENTS.PROJECT_LINK_CLICK),
   });
 
@@ -132,6 +135,8 @@ export function formatEventLabel(eventType: string) {
       return "Load more projects";
     case ANALYTICS_EVENTS.PROJECT_READ_MORE:
       return "Project details expanded";
+    case ANALYTICS_EVENTS.PROJECT_DETAIL_VIEW:
+      return "Project detail page";
     case ANALYTICS_EVENTS.PROJECT_LINK_CLICK:
       return "Project link opened";
     case ANALYTICS_EVENTS.PORTFOLIO_VIEW:

@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 const links = [
-  { name: "Home", href: "#home" },
-  { name: "About", href: "#about" },
-  { name: "Services", href: "#services" },
-  { name: "Projects", href: "#projects" },
-  { name: "Contact", href: "#contact" },
+  { name: "Home", href: "/#home" },
+  { name: "About", href: "/#about" },
+  { name: "Services", href: "/#services" },
+  { name: "Projects", href: "/#projects" },
+  { name: "Contact", href: "/#contact" },
 ];
 
 const brandStylized = "ꪖᦔꪱꪶ ꪑꪊకꪻꪖᠻꪖ";
@@ -34,7 +34,7 @@ export default function Navbar({ name = "Adil Mustafa" }: { name?: string }) {
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link
-          href="#home"
+          href="/#home"
           className="font-display text-base font-bold tracking-tight sm:text-lg"
           title={name}
         >

@@ -60,20 +60,38 @@ export default function AdminSitePage() {
     setLoading(true);
     setLoadError(null);
 
-    const [pRes, sRes, svRes, skRes] = await Promise.all([
-      fetchAdminJson<Record<string, string | null>>("/api/admin/profile"),
-      fetchAdminJson<{ id: number; name: string }[]>("/api/admin/social-links"),
-      fetchAdminJson<{ id: number; name: string }[]>("/api/admin/services"),
-      fetchAdminJson<{ id: number; name: string }[]>("/api/admin/skills"),
-    ]);
+    const res = await fetchAdminJson<{
+      profile: Record<string, string | null> | null;
+      socialLinks: { id: number; name: string }[];
+      services: { id: number; name: string }[];
+      skills: { id: number; name: string }[];
+    }>("/api/admin/site-data");
 
-    const errors = [pRes.error, sRes.error, svRes.error, skRes.error].filter(Boolean);
-    if (errors.length) {
-      setLoadError(errors[0] ?? "Could not load site content");
+    if (res.error) {
+      const hasCached =
+        Boolean(profile.name) ||
+        social.length > 0 ||
+        services.length > 0 ||
+        skills.length > 0;
+      setLoadError(
+        hasCached
+          ? `Refresh failed: ${res.error}. Showing last loaded data — click Retry load.`
+          : res.error
+      );
+      setLoading(false);
+      if (!hasCached) return;
+      return;
     }
 
-    const p = pRes.data;
-    if (p && !("error" in p)) {
+    const data = res.data;
+    if (!data) {
+      setLoadError("No data returned from server");
+      setLoading(false);
+      return;
+    }
+
+    const p = data.profile;
+    if (p) {
       setProfile({
         name: p.name ?? "",
         headline: p.headline ?? "",
@@ -92,9 +110,9 @@ export default function AdminSitePage() {
       });
     }
 
-    if (Array.isArray(sRes.data)) setSocial(sRes.data);
-    if (Array.isArray(svRes.data)) setServices(svRes.data);
-    if (Array.isArray(skRes.data)) setSkills(skRes.data);
+    if (Array.isArray(data.socialLinks)) setSocial(data.socialLinks);
+    if (Array.isArray(data.services)) setServices(data.services);
+    if (Array.isArray(data.skills)) setSkills(data.skills);
 
     setLoading(false);
   }, []);
@@ -199,9 +217,9 @@ export default function AdminSitePage() {
             <p className="font-medium">Could not load content from the database</p>
             <p className="mt-1 text-red-300/90">{loadError}</p>
             <p className="mt-2 text-xs text-red-300/80">
-              Your terminal showed Supabase timeouts (<code>CONNECT_TIMEOUT</code>). Use{" "}
-              <code>DIRECT_URL</code> (port 5432) in <code>.env</code>, then Retry load or
-              Restore defaults.
+              Set <code>DIRECT_URL</code> to{" "}
+              <code>postgresql://postgres:…@db.[ref].supabase.co:5432/postgres</code> in{" "}
+              <code>.env</code> and Vercel (not the pooler host on 5432). Redeploy after changing env vars.
             </p>
           </div>
           <button type="button" onClick={() => loadAll()} className="btn-secondary !py-1.5 !text-xs">

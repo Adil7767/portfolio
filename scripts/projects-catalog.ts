@@ -1,5 +1,7 @@
 /** Portfolio project catalog — used by seed.ts */
 
+import { projectCoverByName, defaultProjectCover } from "../lib/project-covers";
+
 export type ProjectSeed = {
   name: string;
   description: string;
@@ -15,6 +17,8 @@ const gh = (repo: string) =>
 const favicon = (domain: string) =>
   `https://www.google.com/s2/favicons?domain=${domain}&sz=256`;
 
+const cover = (name: string) => projectCoverByName[name] ?? defaultProjectCover;
+
 export const projectsCatalog: ProjectSeed[] = [
   // —— Featured / lead products ——
   {
@@ -22,7 +26,7 @@ export const projectsCatalog: ProjectSeed[] = [
     description:
       "Property and school housing platform with admin and school portals. Built school/apartment workflows, leases, financial reporting, API-first architecture, OTP auth, and production stability fixes on Prisma/Express APIs.",
     link: "https://app.360living.ae",
-    imageUrl: favicon("360living.ae"),
+    imageUrl: cover("360 Living"),
     tags: "Next.js,React,Node.js,Express,Prisma,PostgreSQL,Ant Design",
     featured: true,
   },
@@ -31,7 +35,7 @@ export const projectsCatalog: ProjectSeed[] = [
     description:
       "Multi-tenant enterprise platform with organization hierarchy, RBAC, OTP auth, and AI-assisted workflows. Multiple React/Vite frontends (admin, user, super-admin) on a shared Express/MongoDB core with Stripe, OpenAI, Pinecone, and S3.",
     link: "https://user.bridgebond.ai",
-    imageUrl: favicon("bridgebond.ai"),
+    imageUrl: cover("BridgeBond"),
     tags: "Node.js,Express,MongoDB,React,Vite,Stripe,OpenAI",
     featured: true,
   },
@@ -40,7 +44,7 @@ export const projectsCatalog: ProjectSeed[] = [
     description:
       "Full-stack agricultural / marketplace product with dedicated web and mobile codebases. Lead development across TypeScript web and React Native mobile apps with active production delivery.",
     link: "https://github.com/Adil7767/digital-dehari-web",
-    imageUrl: gh("digital-dehari-web"),
+    imageUrl: cover("Digital Dehari"),
     tags: "Next.js,React Native,TypeScript,Node.js",
     featured: true,
   },
@@ -49,7 +53,7 @@ export const projectsCatalog: ProjectSeed[] = [
     description:
       "Multi-tenant ISP SaaS with Next.js web, Prisma, Supabase, Expo mobile app, and Playwright E2E tests. Web API is the single DB-touching layer; mobile consumes APIs without direct database coupling.",
     link: "https://babu-isp.vercel.app",
-    imageUrl: favicon("babu-isp.vercel.app"),
+    imageUrl: cover("Babu ISP"),
     tags: "Next.js,Prisma,Supabase,Expo,React Native,Playwright",
     featured: true,
   },
@@ -58,7 +62,7 @@ export const projectsCatalog: ProjectSeed[] = [
     description:
       "Agricultural marketplace and multi-admin ecosystem. NestJS + Prisma + PostgreSQL backend serving marketplace, admin, and retail surfaces with WebSockets and role-aware React/Vite frontends.",
     link: "https://github.com/Adil7767",
-    imageUrl: gh("AgriMarket-Connect"),
+    imageUrl: cover("AgriMarket Connect (ATI)"),
     tags: "NestJS,Prisma,PostgreSQL,Vite,React,WebSockets",
     featured: true,
   },
@@ -67,7 +71,7 @@ export const projectsCatalog: ProjectSeed[] = [
     description:
       "Interactive AI stories for lead generation and conversion. Web admin, web viewer, Node.js backend, and React Native mobile app for content delivery and engagement.",
     link: "https://oono.ai",
-    imageUrl: favicon("oono.ai"),
+    imageUrl: cover("Oono — AI Stories Platform"),
     tags: "React Native,Next.js,Node.js,AI",
     featured: true,
   },

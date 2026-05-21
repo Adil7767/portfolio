@@ -111,6 +111,23 @@ The owner dashboard tracks public engagement in Postgres (`analytics_events`):
 
 Run `npm run db:push` after pulling to create the table. Counts show **all time**, **last 7 days**, and **last 30 days**, plus top projects and a recent activity feed.
 
+## Deploy on Vercel
+
+This app is **Next.js** (not Create React App). The build output is `.next`, not a `build/` folder.
+
+1. **Framework preset:** In Vercel → Project → Settings → General → **Framework Preset**, choose **Next.js** (not Create React App).
+2. **Output directory:** Leave **empty** or default — do not set `build`.
+3. **Root `vercel.json`:** Committed with `"framework": "nextjs"` so Vercel uses the correct pipeline.
+4. **Environment variables** (Production + Preview): add all keys from `.env.example`, especially:
+   - `DATABASE_URL` (pooler, port 6543)
+   - `DIRECT_URL` — `postgresql://postgres:PASSWORD@db.[ref].supabase.co:5432/postgres` (user `postgres`, not `postgres.[ref]`) — **required** for admin site content
+   - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`
+   - `CLOUDINARY_*`, `NEXT_PUBLIC_CLOUDINARY_*`
+5. Push the latest `development` (or `main`) branch and redeploy.
+
+If you still see `No Output Directory named "build"`, the dashboard is overriding `vercel.json` — switch Framework Preset to Next.js and clear **Output Directory**.
+
 ## Security notes
 
 - Change `ADMIN_PASSWORD` and `SESSION_SECRET` before deploying

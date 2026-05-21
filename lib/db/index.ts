@@ -16,11 +16,13 @@ function getClient() {
     if (!connectionString) {
       throw new Error("DATABASE_URL or DIRECT_URL is not set");
     }
+    // One connection per serverless instance — avoids Supabase pooler max-client errors
     client = postgres(connectionString, {
       prepare: false,
-      max: 10,
+      max: process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME ? 1 : 6,
       idle_timeout: 20,
-      connect_timeout: 30,
+      connect_timeout: 60,
+      max_lifetime: 60 * 30,
     });
   }
   return client;

@@ -52,10 +52,10 @@ export default async function DashboardAnalytics() {
         />
         <MetricCard
           icon={FolderOpen}
-          label="Project details opened"
-          allTime={stats.allTime.projectReadMore}
-          last7={stats.last7Days.projectReadMore}
-          last30={stats.last30Days.projectReadMore}
+          label="Project detail pages"
+          allTime={stats.allTime.projectDetailViews}
+          last7={stats.last7Days.projectDetailViews}
+          last30={stats.last30Days.projectDetailViews}
         />
         <MetricCard
           icon={MousePointerClick}

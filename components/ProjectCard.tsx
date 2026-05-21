@@ -1,18 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
 import { trackEvent } from "@/lib/track-client";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
-import OptimizedImage from "@/components/ui/OptimizedImage";
+import { ArrowUpRight } from "lucide-react";
+import ProjectCover from "@/components/ui/ProjectCover";
 import type { projects } from "@/drizzle/schema";
 
 type Project = typeof projects.$inferSelect;
 
 export default function ProjectCard({ project, index }: { project: Project; index: number }) {
-  const [expanded, setExpanded] = useState(false);
   const tags = project.tags?.split(",").filter(Boolean) ?? [];
+  const detailHref = `/projects/${project.id}`;
 
   return (
     <motion.article
@@ -22,44 +22,35 @@ export default function ProjectCard({ project, index }: { project: Project; inde
       transition={{ delay: index * 0.05 }}
       className="card-premium group flex flex-col overflow-hidden rounded-2xl"
     >
-      <div className="relative h-56 overflow-hidden bg-[var(--color-surface-elevated)]">
-        {project.imageUrl ? (
-          <OptimizedImage
-            src={project.imageUrl}
-            alt={project.name}
-            fill
-            width={600}
-            height={400}
-            className="object-cover transition duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-[var(--color-muted)]">
-            No preview
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] to-transparent opacity-80" />
+      <Link href={detailHref} className="relative block h-56 overflow-hidden bg-[var(--color-surface-elevated)]">
+        <ProjectCover name={project.name} imageUrl={project.imageUrl} />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] to-transparent opacity-80 transition group-hover:opacity-90" />
         {project.featured && (
           <span className="absolute left-4 top-4 rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold text-white">
             Featured
           </span>
         )}
-      </div>
+      </Link>
 
       <div className="flex flex-1 flex-col p-6">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-display text-xl font-semibold leading-snug">{project.name}</h3>
+          <Link href={detailHref} className="font-display text-xl font-semibold leading-snug hover:text-[var(--color-accent-soft)]">
+            {project.name}
+          </Link>
           {project.link && project.link !== "#" && (
             <a
               href={project.link}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() =>
+              onClick={(e) => {
+                e.stopPropagation();
                 trackEvent(ANALYTICS_EVENTS.PROJECT_LINK_CLICK, {
                   entityId: project.id,
                   entityLabel: project.name,
-                })
-              }
+                });
+              }}
               className="shrink-0 rounded-lg border border-[var(--color-border)] p-2 text-[var(--color-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent-soft)]"
+              title="Open live site"
             >
               <ArrowUpRight size={18} />
             </a>
@@ -79,28 +70,17 @@ export default function ProjectCard({ project, index }: { project: Project; inde
           </div>
         )}
 
-        <p
-          className={`mt-4 flex-1 text-sm leading-relaxed text-[var(--color-muted)] ${expanded ? "" : "line-clamp-3"}`}
-        >
+        <p className="mt-4 flex-1 line-clamp-3 text-sm leading-relaxed text-[var(--color-muted)]">
           {project.description}
         </p>
 
-        <button
-          type="button"
-          onClick={() => {
-            if (!expanded) {
-              trackEvent(ANALYTICS_EVENTS.PROJECT_READ_MORE, {
-                entityId: project.id,
-                entityLabel: project.name,
-              });
-            }
-            setExpanded(!expanded);
-          }}
-          className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-accent-soft)]"
+        <Link
+          href={detailHref}
+          className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-accent-soft)] transition hover:gap-2"
         >
-          {expanded ? "Show less" : "Read more"}
-          <ChevronDown size={16} className={`transition ${expanded ? "rotate-180" : ""}`} />
-        </button>
+          View details
+          <ArrowUpRight size={16} />
+        </Link>
       </div>
     </motion.article>
   );

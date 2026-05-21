@@ -1,5 +1,6 @@
 import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { resolveProjectImageUrl } from "@/lib/project-covers";
 import { resolveSkillIconUrl } from "@/lib/tech-icons";
 import {
   contactMessages,
@@ -15,19 +16,39 @@ export async function getProfile() {
   return rows[0] ?? null;
 }
 
+function withProjectCovers<T extends { name: string; imageUrl: string | null }>(rows: T[]) {
+  return rows.map((row) => ({
+    ...row,
+    imageUrl: resolveProjectImageUrl(row.name, row.imageUrl),
+  }));
+}
+
 export async function getPublishedProjects() {
-  return db
+  const rows = await db
     .select()
     .from(projects)
     .where(eq(projects.published, true))
     .orderBy(desc(projects.featured), asc(projects.sortOrder), desc(projects.id));
+  return withProjectCovers(rows);
+}
+
+export async function getPublishedProjectById(id: number) {
+  const rows = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, id))
+    .limit(1);
+  const row = rows[0];
+  if (!row?.published) return null;
+  return withProjectCovers([row])[0];
 }
 
 export async function getAllProjects() {
-  return db
+  const rows = await db
     .select()
     .from(projects)
     .orderBy(asc(projects.sortOrder), desc(projects.id));
+  return withProjectCovers(rows);
 }
 
 export async function getPublishedServices() {
