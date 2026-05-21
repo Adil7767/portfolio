@@ -55,8 +55,8 @@ export const techStack = [
 ]
 
 
-export const contactLinks = [{ name: 'Stack Overflow', url: 'https://img.icons8.com/external-tal-revivo-color-tal-revivo/40/000000/external-stack-overflow-is-a-question-and-answer-site-for-professional-logo-color-tal-revivo.png', link: 'https://stackoverflow.com/users/11788531/adil-sharma' },
-{ name: 'Instagram', url: 'https://img.icons8.com/doodle/40/000000/instagram-new--v2.png', link: 'https://www.instagram.com/adilsh1999/' },
+export const contactLinks = [{ name: 'Stack Overflow', url: 'https://img.icons8.com/external-tal-revivo-color-tal-revivo/40/000000/external-stack-overflow-is-a-question-and-answer-site-for-professional-logo-color-tal-revivo.png', link: 'https://stackoverflow.com/users/20939438/adil-mustafa' },
+{ name: 'Instagram', url: 'https://img.icons8.com/doodle/40/000000/instagram-new--v2.png', link: 'https://www.instagram.com/adil77671' },
 { name: 'Github', url: 'https://img.icons8.com/doodle/40/000000/github--v1.png', link: 'https://github.com/Adil7767/Adil7767/blob/main/README.md' },
 { name: 'LinkedIn', url: 'https://img.icons8.com/doodle/40/000000/linkedin--v2.png', link: 'https://www.linkedin.com/in/adilmustafa7767' }
 ]

@@ -56,8 +56,8 @@ const serviceData = [
 const socialData = [
   { name: "GitHub", url: "https://github.com/Adil7767", iconUrl: "https://img.icons8.com/doodle/40/000000/github--v1.png" },
   { name: "LinkedIn", url: "https://www.linkedin.com/in/adilmustafa7767", iconUrl: "https://img.icons8.com/doodle/40/000000/linkedin--v2.png" },
-  { name: "Stack Overflow", url: "https://stackoverflow.com/users/11788531/adil-sharma", iconUrl: "https://img.icons8.com/external-tal-revivo-color-tal-revivo/40/000000/external-stack-overflow-is-a-question-and-answer-site-for-professional-logo-color-tal-revivo.png" },
-  { name: "Instagram", url: "https://www.instagram.com/adilsh1999/", iconUrl: "https://img.icons8.com/doodle/40/000000/instagram-new--v2.png" },
+  { name: "Stack Overflow", url: "https://stackoverflow.com/users/20939438/adil-mustafa", iconUrl: "https://img.icons8.com/external-tal-revivo-color-tal-revivo/40/000000/external-stack-overflow-is-a-question-and-answer-site-for-professional-logo-color-tal-revivo.png" },
+  { name: "Instagram", url: "https://www.instagram.com/adil77671", iconUrl: "https://img.icons8.com/doodle/40/000000/instagram-new--v2.png" },
 ];
 
 async function seed() {
