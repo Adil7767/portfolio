@@ -43,17 +43,17 @@ export default function Hero({
     .map((r) => r.trim())
     .filter(Boolean);
 
-  const avatar = p?.avatarUrl || "/mine.png";
-  const heroImg = p?.heroImageUrl || p?.avatarUrl || "/mine.png";
+  const avatar = p?.avatarUrl || "/avatar-crop.png";
+  const heroImg = p?.heroImageUrl || p?.avatarUrl || "/avatar-crop.png";
 
   return (
     <section id="home" className="relative min-h-screen overflow-hidden mesh-bg noise-overlay pt-28 pb-24">
       <div className="relative mx-auto grid max-w-6xl items-center gap-16 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
+          initial={{ opacity: 1, y: 0 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10"
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="animate-fade-up relative z-10"
         >
           {p?.availabilityLabel && (
             <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--color-border-strong)] bg-[var(--color-surface)]/80 px-4 py-1.5 text-xs font-medium text-[var(--color-accent-soft)]">
@@ -127,10 +127,10 @@ export default function Hero({
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.92 }}
+          initial={{ opacity: 1, scale: 1 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.15 }}
-          className="relative mx-auto w-full max-w-md lg:max-w-none"
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="animate-fade-up relative mx-auto w-full max-w-md lg:max-w-none [animation-delay:120ms]"
         >
           <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-[var(--color-accent)]/30 via-transparent to-[var(--color-glow)]/20 blur-2xl" />
           <div className="card-premium relative aspect-[4/5] overflow-hidden rounded-[2rem]">

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import ThemePicker from "@/components/ThemePicker";
 
 const links = [
   { name: "Home", href: "/#home" },
@@ -26,13 +27,13 @@ export default function Navbar({ name = "Adil Mustafa" }: { name?: string }) {
 
   return (
     <header
-      className={`fixed top-0 z-50 w-full transition-all duration-300 ${
+      className={`fixed top-0 z-[100] isolate w-full transition-all duration-300 ${
         scrolled
           ? "border-b border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-background)_92%,transparent)] shadow-lg shadow-black/20 backdrop-blur-xl"
           : "bg-transparent"
       }`}
     >
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+      <nav className="relative z-[100] mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link
           href="/#home"
           className="font-display text-base font-bold tracking-tight sm:text-lg"
@@ -41,27 +42,33 @@ export default function Navbar({ name = "Adil Mustafa" }: { name?: string }) {
           <span className="gradient-text">{brandStylized}</span>
         </Link>
 
-        <ul className="hidden items-center gap-1 md:flex">
-          {links.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-[var(--color-muted)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-foreground)]"
-              >
-                {link.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="hidden items-center gap-2 md:flex">
+          <ul className="flex items-center gap-1">
+            {links.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-[var(--color-muted)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-foreground)]"
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <ThemePicker />
+        </div>
 
-        <button
-          type="button"
-          className="rounded-lg p-2 text-[var(--color-foreground)] md:hidden"
-          onClick={() => setOpen(!open)}
-          aria-label="Menu"
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemePicker />
+          <button
+            type="button"
+            className="rounded-lg p-2 text-[var(--color-foreground)]"
+            onClick={() => setOpen(!open)}
+            aria-label="Menu"
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </nav>
 
       {open && (
