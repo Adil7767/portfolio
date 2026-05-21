@@ -120,7 +120,8 @@ This app is **Next.js** (not Create React App). The build output is `.next`, not
 3. **Root `vercel.json`:** Committed with `"framework": "nextjs"` so Vercel uses the correct pipeline.
 4. **Environment variables** (Production + Preview): add all keys from `.env.example`, especially:
    - `DATABASE_URL` (pooler, port 6543)
-   - `DIRECT_URL` — `postgresql://postgres:PASSWORD@db.[ref].supabase.co:5432/postgres` (user `postgres`, not `postgres.[ref]`) — **required** for admin site content
+   - `DATABASE_URL` — transaction pooler (port 6543) from Supabase
+   - `DIRECT_URL` (optional) — **session pooler** (port 5432). If omitted, the app derives it from `DATABASE_URL`. Do not use `db.[ref].supabase.co` on Vercel (ENOTFOUND).
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`
    - `CLOUDINARY_*`, `NEXT_PUBLIC_CLOUDINARY_*`

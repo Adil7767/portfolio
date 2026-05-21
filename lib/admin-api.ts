@@ -11,7 +11,15 @@ export async function withAdminHandler<T>(
 
   try {
     const data = await handler();
-    return NextResponse.json(data, init);
+    try {
+      return NextResponse.json(data, init);
+    } catch (serializeErr) {
+      console.error("[admin-api] JSON serialize", serializeErr);
+      return NextResponse.json(
+        { error: "Response could not be serialized" },
+        { status: 500 }
+      );
+    }
   } catch (err) {
     console.error("[admin-api]", err);
     return NextResponse.json({ error: dbErrorMessage(err) }, { status: 503 });

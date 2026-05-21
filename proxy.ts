@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { updateSession } from "@/utils/supabase/middleware";
 
 const COOKIE_NAME = "admin_session";
 
@@ -19,33 +18,35 @@ async function isAdminAuthenticated(request: NextRequest) {
   }
 }
 
+/** Admin route protection only. DB uses Drizzle + DIRECT_URL (no Supabase Auth in middleware). */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  const { response } = updateSession(request);
 
   const isAdminArea =
     pathname.startsWith("/admin") || pathname.startsWith("/owner");
 
-  if (isAdminArea) {
-    const isLogin =
-      pathname === "/admin/login" || pathname === "/owner/login";
-    const authenticated = await isAdminAuthenticated(request);
-
-    if (!authenticated && !isLogin) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
-    }
-
-    if (authenticated && isLogin) {
-      return NextResponse.redirect(new URL("/admin/site", request.url));
-    }
+  if (!isAdminArea) {
+    return NextResponse.next();
   }
 
-  return response;
+  const isLogin =
+    pathname === "/admin/login" || pathname === "/owner/login";
+  const authenticated = await isAdminAuthenticated(request);
+
+  if (!authenticated && !isLogin) {
+    return NextResponse.redirect(new URL("/admin/login", request.url));
+  }
+
+  if (authenticated && isLogin) {
+    return NextResponse.redirect(new URL("/admin/site", request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf)$).*)",
+    "/admin/:path*",
+    "/owner/:path*",
   ],
 };

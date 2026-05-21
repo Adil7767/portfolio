@@ -4,7 +4,12 @@ import { db } from "@/lib/db";
 import { profile, services, skills, socialLinks } from "@/drizzle/schema";
 import { getProfile } from "@/lib/data";
 
+export const runtime = "nodejs";
 export const maxDuration = 30;
+
+function toJson<T>(row: T): T {
+  return JSON.parse(JSON.stringify(row)) as T;
+}
 
 /** Single request loads all site editor data (avoids 4 parallel admin API calls). */
 export async function GET() {
@@ -24,10 +29,10 @@ export async function GET() {
       .orderBy(asc(skills.sortOrder));
 
     return {
-      profile: profileData,
-      socialLinks: social,
-      services: servicesList,
-      skills: skillsList,
+      profile: profileData ? toJson(profileData) : null,
+      socialLinks: toJson(social),
+      services: toJson(servicesList),
+      skills: toJson(skillsList),
     };
   });
 }

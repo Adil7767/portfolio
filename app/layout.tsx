@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
@@ -24,12 +24,15 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
   },
-  themeColor: "#06060b",
   openGraph: {
     title: "Adil Mustafa | Full Stack Developer",
     description: "Web, mobile, and backend engineering portfolio.",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#06060b",
 };
 
 export default function RootLayout({

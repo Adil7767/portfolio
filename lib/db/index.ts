@@ -5,9 +5,37 @@ import * as schema from "@/drizzle/schema";
 let client: ReturnType<typeof postgres> | null = null;
 let database: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
+/** db.[ref].supabase.co often fails DNS on Vercel — use session pooler (5432) instead. */
+const LEGACY_DIRECT_HOST = /db\.[^/]+\.supabase\.co/i;
+
+function sessionPoolerFromTransactionUrl(url: string): string {
+  try {
+    const normalized = url.replace(/^postgresql:\/\//, "http://");
+    const parsed = new URL(normalized);
+    parsed.port = "5432";
+    parsed.search = "";
+    const user = decodeURIComponent(parsed.username);
+    const pass = decodeURIComponent(parsed.password);
+    const auth = `${encodeURIComponent(user)}:${encodeURIComponent(pass)}`;
+    return `postgresql://${auth}@${parsed.hostname}:${parsed.port}${parsed.pathname}`;
+  } catch {
+    return url.replace(":6543", ":5432").replace(/\?pgbouncer=true/, "");
+  }
+}
+
 function getConnectionString() {
-  // Direct connection (port 5432) is more reliable for Next.js server than pooler under load
-  return process.env.DIRECT_URL ?? process.env.DATABASE_URL;
+  const direct = process.env.DIRECT_URL?.trim();
+  const pooled = process.env.DATABASE_URL?.trim();
+
+  if (direct && !LEGACY_DIRECT_HOST.test(direct)) {
+    return direct;
+  }
+
+  if (pooled) {
+    return sessionPoolerFromTransactionUrl(pooled);
+  }
+
+  return direct;
 }
 
 function getClient() {
@@ -16,7 +44,6 @@ function getClient() {
     if (!connectionString) {
       throw new Error("DATABASE_URL or DIRECT_URL is not set");
     }
-    // One connection per serverless instance — avoids Supabase pooler max-client errors
     client = postgres(connectionString, {
       prepare: false,
       max: process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME ? 1 : 6,
@@ -30,8 +57,11 @@ function getClient() {
 
 export function dbErrorMessage(err: unknown): string {
   if (err instanceof Error) {
+    if (err.message.includes("ENOTFOUND")) {
+      return "Database host not found. In Vercel, set DATABASE_URL (pooler) from Supabase — remove DIRECT_URL if it uses db.*.supabase.co.";
+    }
     if (err.message.includes("CONNECT_TIMEOUT") || err.message.includes("EAUTHTIMEOUT")) {
-      return "Database connection timed out. Check DIRECT_URL in .env and your Supabase project status, then click Retry.";
+      return "Database connection timed out. Check DATABASE_URL in Vercel env vars.";
     }
     return err.message;
   }

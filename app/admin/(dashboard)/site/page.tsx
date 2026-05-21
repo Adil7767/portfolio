@@ -7,6 +7,7 @@ import AdminShell from "@/components/admin/AdminShell";
 import ItemEditor from "@/components/admin/ItemEditor";
 import MediaUpload from "@/components/admin/MediaUpload";
 import { fetchAdminJson } from "@/lib/admin-fetch";
+import { parseResponseBody } from "@/lib/parse-response";
 
 type ProfileForm = {
   name: string;
@@ -130,14 +131,20 @@ export default function AdminSitePage() {
     const res = await fetch("/api/admin/restore-defaults", {
       method: "POST",
       credentials: "include",
+      headers: { Accept: "application/json" },
     });
-    const json = await res.json();
+    const { json, error: parseError } = await parseResponseBody(res);
     setRestoring(false);
-    if (!res.ok) {
-      setLoadError(json.error ?? "Restore failed");
+    if (parseError) {
+      setLoadError(parseError);
       return;
     }
-    alert(json.message ?? "Defaults restored");
+    const body = json as { error?: string; message?: string } | null;
+    if (!res.ok) {
+      setLoadError(body?.error ?? "Restore failed");
+      return;
+    }
+    alert(body?.message ?? "Defaults restored");
     await loadAll();
   }
 
@@ -217,9 +224,8 @@ export default function AdminSitePage() {
             <p className="font-medium">Could not load content from the database</p>
             <p className="mt-1 text-red-300/90">{loadError}</p>
             <p className="mt-2 text-xs text-red-300/80">
-              Set <code>DIRECT_URL</code> to{" "}
-              <code>postgresql://postgres:…@db.[ref].supabase.co:5432/postgres</code> in{" "}
-              <code>.env</code> and Vercel (not the pooler host on 5432). Redeploy after changing env vars.
+              Set <code>DATABASE_URL</code> (and optional <code>DIRECT_URL</code> session pooler on port 5432) in Vercel.
+              Remove <code>DIRECT_URL</code> if it uses <code>db.*.supabase.co</code> — that host fails on Vercel.
             </p>
           </div>
           <button type="button" onClick={() => loadAll()} className="btn-secondary !py-1.5 !text-xs">
