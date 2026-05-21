@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { createAdminSession, verifyAdminCredentials } from "@/lib/auth";
+import {
+  ADMIN_SESSION_COOKIE,
+  adminSessionCookieOptions,
+  signAdminToken,
+  verifyAdminCredentials,
+} from "@/lib/auth";
 import { z } from "zod";
 
 const schema = z.object({
@@ -19,6 +24,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }
 
-  await createAdminSession();
-  return NextResponse.json({ ok: true });
+  const token = await signAdminToken();
+  const response = NextResponse.json({
+    ok: true,
+    redirect: "/admin/site",
+  });
+
+  // Must set cookie on the response — cookies().set() in Route Handlers often omits Set-Cookie
+  response.cookies.set(ADMIN_SESSION_COOKIE, token, adminSessionCookieOptions());
+
+  return response;
 }

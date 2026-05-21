@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-const COOKIE_NAME = "admin_session";
+export const ADMIN_SESSION_COOKIE = "admin_session";
 const SESSION_HOURS = 24;
 
 function getSecret() {
@@ -10,31 +10,39 @@ function getSecret() {
   return new TextEncoder().encode(secret);
 }
 
-export async function createAdminSession() {
-  const token = await new SignJWT({ role: "admin" })
+/** Signs a JWT for the admin session (stored in httpOnly cookie, not localStorage). */
+export async function signAdminToken() {
+  return new SignJWT({ role: "admin" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_HOURS}h`)
     .sign(getSecret());
+}
 
-  const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, {
+export function adminSessionCookieOptions() {
+  return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "lax" as const,
     path: "/",
     maxAge: SESSION_HOURS * 60 * 60,
-  });
+  };
+}
+
+/** For Server Actions / Server Components only — Route Handlers must set cookie on NextResponse. */
+export async function createAdminSession() {
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_SESSION_COOKIE, await signAdminToken(), adminSessionCookieOptions());
 }
 
 export async function destroyAdminSession() {
   const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
+  cookieStore.delete(ADMIN_SESSION_COOKIE);
 }
 
 export async function verifyAdminSession(): Promise<boolean> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
+  const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
   if (!token) return false;
 
   try {

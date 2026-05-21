@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Lock, Mail, Shield } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,6 +18,7 @@ export default function AdminLoginPage() {
     const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, password }),
     });
 
@@ -29,8 +28,10 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.push("/admin/site");
-    router.refresh();
+    const data = (await res.json()) as { redirect?: string };
+    const target = data.redirect ?? "/admin/site";
+    // Full navigation so middleware sees the new httpOnly session cookie
+    window.location.assign(target);
   }
 
   return (

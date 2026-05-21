@@ -9,7 +9,7 @@ const inter = Inter({
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-display",
+  variable: "--font-space-grotesk",
 });
 
 export const metadata: Metadata = {
