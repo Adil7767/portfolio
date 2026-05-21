@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
+import { trackEvent } from "@/lib/track-client";
 import SectionHeading from "@/components/ui/SectionHeading";
 import type { profile } from "@/drizzle/schema";
 import type { projects } from "@/drizzle/schema";
@@ -35,7 +37,16 @@ export default function Projects({
 
         {list.length > visible && (
           <div className="mt-14 text-center">
-            <button type="button" onClick={() => setVisible((v) => v + 6)} className="btn-secondary">
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent(ANALYTICS_EVENTS.PROJECTS_LOAD_MORE, {
+                  meta: { visibleAfter: visible + 6, total: list.length },
+                });
+                setVisible((v) => v + 6);
+              }}
+              className="btn-secondary"
+            >
               Load more projects
             </button>
           </div>

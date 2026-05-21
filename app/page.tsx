@@ -1,3 +1,4 @@
+import AnalyticsBeacon from "@/components/AnalyticsBeacon";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
@@ -13,6 +14,7 @@ export default async function HomePage() {
 
   return (
     <div className="mesh-bg min-h-screen">
+      <AnalyticsBeacon />
       <Navbar name={data.profile?.name ?? "Adil Mustafa"} />
       <main>
         <Hero

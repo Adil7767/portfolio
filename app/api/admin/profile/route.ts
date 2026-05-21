@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { withAdminHandler } from "@/lib/admin-api";
 import { verifyAdminSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { profile } from "@/drizzle/schema";
@@ -27,8 +28,7 @@ export async function GET() {
   if (!(await verifyAdminSession())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const row = await getProfile();
-  return NextResponse.json(row);
+  return withAdminHandler(() => getProfile());
 }
 
 export async function PUT(request: Request) {

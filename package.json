@@ -11,7 +11,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx --env-file=.env scripts/seed.ts"
+    "db:seed": "tsx --env-file=.env scripts/seed.ts",
+    "db:sync-icons": "tsx --env-file=.env scripts/sync-skill-icons.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",

@@ -96,6 +96,21 @@ Admin uploads go through `/api/admin/upload` (authenticated) into folder `adil-p
 
 Set `CLOUDINARY_*` vars in `.env` (see `.env.example`).
 
+## Visitor analytics (admin dashboard)
+
+The owner dashboard tracks public engagement in Postgres (`analytics_events`):
+
+| Event | When it fires |
+|-------|----------------|
+| Portfolio visit | Once per browser session on the home page |
+| Resume download | Each hit to `/resume` |
+| Load more projects | “Load more projects” button |
+| Project details opened | “Read more” on a project card |
+| Project link clicked | External link icon on a card |
+| Contact form sent | Successful contact API submit |
+
+Run `npm run db:push` after pulling to create the table. Counts show **all time**, **last 7 days**, and **last 30 days**, plus top projects and a recent activity feed.
+
 ## Security notes
 
 - Change `ADMIN_PASSWORD` and `SESSION_SECRET` before deploying

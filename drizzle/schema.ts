@@ -75,3 +75,14 @@ export const contactMessages = pgTable("contact_messages", {
   read: boolean("read").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+/** Public portfolio engagement (resume, projects, load more, etc.) */
+export const analyticsEvents = pgTable("analytics_events", {
+  id: serial("id").primaryKey(),
+  eventType: varchar("event_type", { length: 64 }).notNull(),
+  entityId: integer("entity_id"),
+  entityLabel: varchar("entity_label", { length: 255 }),
+  path: varchar("path", { length: 512 }),
+  meta: text("meta"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

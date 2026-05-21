@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
+import { withAdminHandler } from "@/lib/admin-api";
 import { requireAdmin } from "@/lib/admin-guard";
 import { db } from "@/lib/db";
 import { skills } from "@/drizzle/schema";
@@ -13,10 +14,9 @@ const schema = z.object({
 });
 
 export async function GET() {
-  const denied = await requireAdmin();
-  if (denied) return denied;
-  const rows = await db.select().from(skills).orderBy(asc(skills.sortOrder));
-  return NextResponse.json(rows);
+  return withAdminHandler(() =>
+    db.select().from(skills).orderBy(asc(skills.sortOrder))
+  );
 }
 
 export async function POST(request: Request) {

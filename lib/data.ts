@@ -1,5 +1,6 @@
 import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { resolveSkillIconUrl } from "@/lib/tech-icons";
 import {
   contactMessages,
   profile,
@@ -38,11 +39,15 @@ export async function getPublishedServices() {
 }
 
 export async function getPublishedSkills() {
-  return db
+  const rows = await db
     .select()
     .from(skills)
     .where(eq(skills.published, true))
     .orderBy(asc(skills.sortOrder));
+  return rows.map((row) => ({
+    ...row,
+    iconUrl: resolveSkillIconUrl(row.name, row.iconUrl),
+  }));
 }
 
 export async function getPublishedSocialLinks() {

@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { ExternalLink, Save } from "lucide-react";
+import { AlertCircle, ExternalLink, RefreshCw, RotateCcw, Save } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import ItemEditor from "@/components/admin/ItemEditor";
 import MediaUpload from "@/components/admin/MediaUpload";
+import { fetchAdminJson } from "@/lib/admin-fetch";
 
 type ProfileForm = {
   name: string;
@@ -51,15 +52,28 @@ export default function AdminSitePage() {
   const [skills, setSkills] = useState<{ id: number; name: string }[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(false);
 
   const loadAll = useCallback(async () => {
-    const [p, s, sv, sk] = await Promise.all([
-      fetch("/api/admin/profile").then((r) => r.json()),
-      fetch("/api/admin/social-links").then((r) => r.json()),
-      fetch("/api/admin/services").then((r) => r.json()),
-      fetch("/api/admin/skills").then((r) => r.json()),
+    setLoading(true);
+    setLoadError(null);
+
+    const [pRes, sRes, svRes, skRes] = await Promise.all([
+      fetchAdminJson<Record<string, string | null>>("/api/admin/profile"),
+      fetchAdminJson<{ id: number; name: string }[]>("/api/admin/social-links"),
+      fetchAdminJson<{ id: number; name: string }[]>("/api/admin/services"),
+      fetchAdminJson<{ id: number; name: string }[]>("/api/admin/skills"),
     ]);
-    if (p && !p.error) {
+
+    const errors = [pRes.error, sRes.error, svRes.error, skRes.error].filter(Boolean);
+    if (errors.length) {
+      setLoadError(errors[0] ?? "Could not load site content");
+    }
+
+    const p = pRes.data;
+    if (p && !("error" in p)) {
       setProfile({
         name: p.name ?? "",
         headline: p.headline ?? "",
@@ -77,10 +91,37 @@ export default function AdminSitePage() {
         contactHeading: p.contactHeading ?? profileDefaults.contactHeading,
       });
     }
-    if (Array.isArray(s)) setSocial(s);
-    if (Array.isArray(sv)) setServices(sv);
-    if (Array.isArray(sk)) setSkills(sk);
+
+    if (Array.isArray(sRes.data)) setSocial(sRes.data);
+    if (Array.isArray(svRes.data)) setServices(svRes.data);
+    if (Array.isArray(skRes.data)) setSkills(skRes.data);
+
+    setLoading(false);
   }, []);
+
+  async function restoreDefaults() {
+    if (
+      !confirm(
+        "Restore default profile, social links, services, skills, and projects only where tables are empty. Existing data is kept."
+      )
+    ) {
+      return;
+    }
+    setRestoring(true);
+    setLoadError(null);
+    const res = await fetch("/api/admin/restore-defaults", {
+      method: "POST",
+      credentials: "include",
+    });
+    const json = await res.json();
+    setRestoring(false);
+    if (!res.ok) {
+      setLoadError(json.error ?? "Restore failed");
+      return;
+    }
+    alert(json.message ?? "Defaults restored");
+    await loadAll();
+  }
 
   useEffect(() => {
     loadAll();
@@ -113,11 +154,11 @@ export default function AdminSitePage() {
     if (res.ok) setSaved(true);
   }
 
-  const tabs: { id: Tab; label: string }[] = [
+  const tabs: { id: Tab; label: string; count?: number }[] = [
     { id: "profile", label: "Profile & Resume" },
-    { id: "social", label: "Social Links" },
-    { id: "services", label: "Services" },
-    { id: "skills", label: "Skills" },
+    { id: "social", label: "Social Links", count: social.length },
+    { id: "services", label: "Services", count: services.length },
+    { id: "skills", label: "Skills", count: skills.length },
   ];
 
   return (
@@ -125,12 +166,54 @@ export default function AdminSitePage() {
       title="Site content"
       description="Edit everything visitors see on your public portfolio — resume link, bio, images, headings, and more."
       action={
-        <Link href="/" target="_blank" className="btn-secondary !text-xs">
-          <ExternalLink size={16} />
-          Preview live site
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => loadAll()}
+            disabled={loading}
+            className="btn-secondary !text-xs"
+          >
+            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+            Retry load
+          </button>
+          <button
+            type="button"
+            onClick={restoreDefaults}
+            disabled={restoring || loading}
+            className="btn-secondary !text-xs"
+          >
+            <RotateCcw size={16} />
+            {restoring ? "Restoring…" : "Restore defaults"}
+          </button>
+          <Link href="/" target="_blank" className="btn-secondary !text-xs">
+            <ExternalLink size={16} />
+            Preview live site
+          </Link>
+        </div>
       }
     >
+      {loadError && (
+        <div className="mb-6 flex flex-wrap items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <AlertCircle size={20} className="shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium">Could not load content from the database</p>
+            <p className="mt-1 text-red-300/90">{loadError}</p>
+            <p className="mt-2 text-xs text-red-300/80">
+              Your terminal showed Supabase timeouts (<code>CONNECT_TIMEOUT</code>). Use{" "}
+              <code>DIRECT_URL</code> (port 5432) in <code>.env</code>, then Retry load or
+              Restore defaults.
+            </p>
+          </div>
+          <button type="button" onClick={() => loadAll()} className="btn-secondary !py-1.5 !text-xs">
+            Retry
+          </button>
+        </div>
+      )}
+
+      {loading && (
+        <p className="mb-4 text-sm text-[var(--color-muted)]">Loading site content…</p>
+      )}
+
       <div className="admin-tabs">
         {tabs.map((t) => (
           <button
@@ -141,6 +224,11 @@ export default function AdminSitePage() {
             onClick={() => setTab(t.id)}
           >
             {t.label}
+            {t.count != null && (
+              <span className="ml-2 rounded-full bg-[var(--color-surface-elevated)] px-2 py-0.5 text-xs">
+                {t.count}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -290,6 +378,10 @@ export default function AdminSitePage() {
           items={social}
           onRefresh={loadAll}
           withVisibility
+          loading={loading}
+          loadError={loadError}
+          allowReorder
+          allowDuplicate
         />
       )}
 
@@ -308,6 +400,10 @@ export default function AdminSitePage() {
           items={services}
           onRefresh={loadAll}
           withVisibility
+          loading={loading}
+          loadError={loadError}
+          allowReorder
+          allowDuplicate
         />
       )}
 
@@ -325,6 +421,10 @@ export default function AdminSitePage() {
           items={skills}
           onRefresh={loadAll}
           withVisibility
+          loading={loading}
+          loadError={loadError}
+          allowReorder
+          allowDuplicate
         />
       )}
     </AdminShell>

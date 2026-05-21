@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-events";
+import { trackEvent } from "@/lib/track-client";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import type { projects } from "@/drizzle/schema";
@@ -51,6 +53,12 @@ export default function ProjectCard({ project, index }: { project: Project; inde
               href={project.link}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent(ANALYTICS_EVENTS.PROJECT_LINK_CLICK, {
+                  entityId: project.id,
+                  entityLabel: project.name,
+                })
+              }
               className="shrink-0 rounded-lg border border-[var(--color-border)] p-2 text-[var(--color-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent-soft)]"
             >
               <ArrowUpRight size={18} />
@@ -79,7 +87,15 @@ export default function ProjectCard({ project, index }: { project: Project; inde
 
         <button
           type="button"
-          onClick={() => setExpanded(!expanded)}
+          onClick={() => {
+            if (!expanded) {
+              trackEvent(ANALYTICS_EVENTS.PROJECT_READ_MORE, {
+                entityId: project.id,
+                entityLabel: project.name,
+              });
+            }
+            setExpanded(!expanded);
+          }}
           className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-accent-soft)]"
         >
           {expanded ? "Show less" : "Read more"}

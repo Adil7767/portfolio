@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Archive, Globe, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Archive,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Globe,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import MediaUpload from "./MediaUpload";
 import StatusBadge from "./StatusBadge";
 import VisibilityControl from "./VisibilityControl";
@@ -23,6 +32,10 @@ export default function ItemEditor<T extends { id: number }>({
   items,
   onRefresh,
   withVisibility = false,
+  loading: listLoading = false,
+  loadError = null,
+  allowReorder = false,
+  allowDuplicate = false,
 }: {
   title: string;
   description: string;
@@ -33,11 +46,16 @@ export default function ItemEditor<T extends { id: number }>({
   onRefresh: () => void;
   /** Enable Active / Archived controls (uses `published` field) */
   withVisibility?: boolean;
+  loading?: boolean;
+  loadError?: string | null;
+  allowReorder?: boolean;
+  allowDuplicate?: boolean;
 }) {
   const [editing, setEditing] = useState<T | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Record<string, unknown>>(emptyItem);
   const [loading, setLoading] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function startEdit(item: T) {
     setEditing(item);
@@ -59,14 +77,21 @@ export default function ItemEditor<T extends { id: number }>({
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setSaveError(null);
     const method = editing ? "PUT" : "POST";
     const body = editing ? { ...form, id: editing.id } : form;
-    await fetch(apiPath, {
+    const res = await fetch(apiPath, {
       method,
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(body),
     });
     setLoading(false);
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      setSaveError(typeof json.error === "string" ? json.error : "Save failed");
+      return;
+    }
     setShowForm(false);
     setEditing(null);
     onRefresh();
@@ -74,7 +99,7 @@ export default function ItemEditor<T extends { id: number }>({
 
   async function remove(id: number) {
     if (!confirm(`Delete this ${title.toLowerCase()}?`)) return;
-    await fetch(`${apiPath}?id=${id}`, { method: "DELETE" });
+    await fetch(`${apiPath}?id=${id}`, { method: "DELETE", credentials: "include" });
     onRefresh();
   }
 
@@ -84,8 +109,58 @@ export default function ItemEditor<T extends { id: number }>({
     await fetch(apiPath, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ id: item.id, published: !published }),
     });
+    onRefresh();
+  }
+
+  async function duplicateItem(item: T) {
+    const record = item as Record<string, unknown>;
+    const copy: Record<string, unknown> = { ...emptyItem };
+    fields.forEach((f) => {
+      if (f.key !== "id") copy[f.key] = record[f.key] ?? copy[f.key];
+    });
+    if (withVisibility) copy.published = record.published ?? true;
+    copy.name = `${String(record.name ?? "Item")} (copy)`;
+    copy.sortOrder = items.length;
+    await fetch(apiPath, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(copy),
+    });
+    onRefresh();
+  }
+
+  async function moveItem(item: T, direction: -1 | 1) {
+    const index = items.findIndex((i) => i.id === item.id);
+    const swapIndex = index + direction;
+    if (swapIndex < 0 || swapIndex >= items.length) return;
+    const other = items[swapIndex] as Record<string, unknown>;
+    const current = item as Record<string, unknown>;
+    await Promise.all([
+      fetch(apiPath, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: item.id,
+          ...current,
+          sortOrder: other.sortOrder ?? swapIndex,
+        }),
+      }),
+      fetch(apiPath, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: items[swapIndex].id,
+          ...other,
+          sortOrder: current.sortOrder ?? index,
+        }),
+      }),
+    ]);
     onRefresh();
   }
 
@@ -96,11 +171,23 @@ export default function ItemEditor<T extends { id: number }>({
           <h3 className="text-lg font-semibold">{title}</h3>
           <p className="mt-1 text-sm text-[var(--color-muted)]">{description}</p>
         </div>
-        <button type="button" onClick={startNew} className="btn-primary shrink-0 !py-2 !text-xs">
-          <Plus size={16} />
-          Add
-        </button>
+        <div className="flex shrink-0 gap-2">
+          <span className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-muted)]">
+            {items.length} item{items.length === 1 ? "" : "s"}
+          </span>
+          <button type="button" onClick={startNew} className="btn-primary !py-2 !text-xs">
+            <Plus size={16} />
+            Add
+          </button>
+        </div>
       </div>
+
+      {loadError && (
+        <p className="mb-4 text-sm text-red-400">
+          Database error — use Retry load above. ({loadError})
+        </p>
+      )}
+      {saveError && <p className="mb-4 text-sm text-red-400">{saveError}</p>}
 
       {(showForm || editing) && (
         <form onSubmit={save} className="mb-6 space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] p-4">
@@ -183,7 +270,10 @@ export default function ItemEditor<T extends { id: number }>({
       )}
 
       <ul className="space-y-2">
-        {items.map((item) => (
+        {listLoading && items.length === 0 && (
+          <p className="py-4 text-center text-sm text-[var(--color-muted)]">Loading…</p>
+        )}
+        {items.map((item, index) => (
           <li
             key={item.id}
             className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--color-border)] px-4 py-3 ${
@@ -202,7 +292,39 @@ export default function ItemEditor<T extends { id: number }>({
                 />
               )}
             </div>
-            <div className="flex gap-1">
+            <div className="flex flex-wrap gap-1">
+              {allowReorder && (
+                <>
+                  <button
+                    type="button"
+                    title="Move up"
+                    disabled={index === 0}
+                    onClick={() => moveItem(item, -1)}
+                    className="rounded-lg p-2 text-[var(--color-muted)] hover:bg-[var(--color-surface-elevated)] disabled:opacity-30"
+                  >
+                    <ChevronUp size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    title="Move down"
+                    disabled={index === items.length - 1}
+                    onClick={() => moveItem(item, 1)}
+                    className="rounded-lg p-2 text-[var(--color-muted)] hover:bg-[var(--color-surface-elevated)] disabled:opacity-30"
+                  >
+                    <ChevronDown size={16} />
+                  </button>
+                </>
+              )}
+              {allowDuplicate && (
+                <button
+                  type="button"
+                  title="Duplicate"
+                  onClick={() => duplicateItem(item)}
+                  className="rounded-lg p-2 text-[var(--color-muted)] hover:bg-[var(--color-surface-elevated)]"
+                >
+                  <Copy size={16} />
+                </button>
+              )}
               {withVisibility && (
                 <button
                   type="button"
@@ -238,8 +360,10 @@ export default function ItemEditor<T extends { id: number }>({
             </div>
           </li>
         ))}
-        {items.length === 0 && (
-          <p className="py-4 text-center text-sm text-[var(--color-muted)]">No items yet.</p>
+        {!listLoading && items.length === 0 && (
+          <p className="py-4 text-center text-sm text-[var(--color-muted)]">
+            No items yet. Click Add, or use Restore defaults if the database was empty.
+          </p>
         )}
       </ul>
     </div>

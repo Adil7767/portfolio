@@ -1,16 +1,23 @@
 import { NextResponse } from "next/server";
+import { ANALYTICS_EVENTS, recordAnalyticsEvent } from "@/lib/analytics";
 import { getProfile } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 /** Public resume download — always uses latest URL from database */
-export async function GET() {
+export async function GET(request: Request) {
   const profile = await getProfile();
   const url = profile?.resumeUrl?.trim();
 
   if (!url) {
     return NextResponse.json({ error: "Resume not available" }, { status: 404 });
   }
+
+  await recordAnalyticsEvent({
+    eventType: ANALYTICS_EVENTS.RESUME_DOWNLOAD,
+    path: "/resume",
+    meta: { referrer: request.headers.get("referer") ?? undefined },
+  });
 
   const isPdf =
     url.includes(".pdf") ||

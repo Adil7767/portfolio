@@ -1,14 +1,20 @@
-/** Reliable CDN icon URLs (devicon / vectorlogo) */
+/** Reliable CDN icon URLs (devicon / simpleicons) */
 
 const d = (path: string) =>
-  `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${path}`;
+  `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${path}`;
+
+/** simpleicons.org — stable when devicon returns 403 */
+const si = (slug: string, color?: string) =>
+  color
+    ? `https://cdn.simpleicons.org/${slug}/${color.replace("#", "")}`
+    : `https://cdn.simpleicons.org/${slug}`;
 
 export const skillIcons: { name: string; iconUrl: string }[] = [
   { name: "TypeScript", iconUrl: d("typescript/typescript-original.svg") },
   { name: "JavaScript", iconUrl: d("javascript/javascript-original.svg") },
   { name: "React", iconUrl: d("react/react-original-wordmark.svg") },
   { name: "Next.js", iconUrl: d("nextjs/nextjs-original.svg") },
-  { name: "React Native", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
+  { name: "React Native", iconUrl: d("react/react-original.svg") },
   { name: "Node.js", iconUrl: d("nodejs/nodejs-original-wordmark.svg") },
   { name: "Express", iconUrl: d("express/express-original-wordmark.svg") },
   { name: "NestJS", iconUrl: d("nestjs/nestjs-original.svg") },
@@ -28,7 +34,7 @@ export const skillIcons: { name: string; iconUrl: string }[] = [
   { name: "Bootstrap", iconUrl: d("bootstrap/bootstrap-original.svg") },
   { name: "Redux", iconUrl: d("redux/redux-original.svg") },
   { name: "MobX", iconUrl: d("mobx/mobx-original.svg") },
-  { name: "Ant Design", iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/antdesign/ant-design-original.svg" },
+  { name: "Ant Design", iconUrl: si("antdesign", "0170FE") },
   { name: "Material UI", iconUrl: d("materialui/materialui-original.svg") },
   { name: "shadcn/ui", iconUrl: "https://avatars.githubusercontent.com/u/139895814?s=200&v=4" },
   { name: "Vite", iconUrl: d("vite/vite-original.svg") },
@@ -38,9 +44,9 @@ export const skillIcons: { name: string; iconUrl: string }[] = [
   { name: "Firebase", iconUrl: d("firebase/firebase-plain.svg") },
   { name: "Git", iconUrl: d("git/git-original.svg") },
   { name: "GitLab", iconUrl: d("gitlab/gitlab-original.svg") },
-  { name: "Stripe", iconUrl: d("stripe/stripe-original.svg") },
+  { name: "Stripe", iconUrl: si("stripe", "635BFF") },
   { name: "Medusa.js", iconUrl: "https://avatars.githubusercontent.com/u/59018053?s=200&v=4" },
-  { name: "Cloudinary", iconUrl: "https://www.vectorlogo.zone/logos/cloudinary/cloudinary-icon.svg" },
+  { name: "Cloudinary", iconUrl: si("cloudinary", "3448C5") },
   { name: "Vercel", iconUrl: d("vercel/vercel-original.svg") },
   { name: "Expo", iconUrl: "https://www.vectorlogo.zone/logos/expoio/expoio-icon.svg" },
   { name: "Socket.io", iconUrl: "https://www.vectorlogo.zone/logos/socketio/socketio-icon.svg" },
@@ -52,6 +58,15 @@ export const skillIcons: { name: string; iconUrl: string }[] = [
   { name: "NGINX", iconUrl: d("nginx/nginx-original.svg") },
   { name: "Kafka", iconUrl: "https://www.vectorlogo.zone/logos/apache_kafka/apache_kafka-icon.svg" },
 ];
+
+export const skillIconByName: Record<string, string> = Object.fromEntries(
+  skillIcons.map((s) => [s.name, s.iconUrl])
+);
+
+/** Prefer canonical CDN map so stale DB URLs still render on the public site */
+export function resolveSkillIconUrl(name: string, dbUrl?: string | null) {
+  return skillIconByName[name] ?? dbUrl ?? "";
+}
 
 export const serviceIcons: Record<string, string> = {
   "Web Application Development": d("react/react-original-wordmark.svg"),

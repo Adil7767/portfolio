@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ExternalLink, FileText, FolderKanban } from "lucide-react";
+import DashboardAnalytics from "@/components/admin/DashboardAnalytics";
 import AdminShell from "@/components/admin/AdminShell";
 import { getAllProjects, getContactMessages, getProfile } from "@/lib/data";
 
@@ -37,8 +38,15 @@ export default async function AdminDashboardPage() {
           value={projectsList.filter((p) => !p.published).length}
           href="/admin/projects"
         />
-        <StatCard label="Messages" value={messages.length} href="/admin/site" />
+        <StatCard
+          label="Messages"
+          value={messages.length}
+          href="/admin/site"
+          badge={unread > 0 ? unread : undefined}
+        />
       </div>
+
+      <DashboardAnalytics />
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
         <Link href="/admin/site" className="admin-card group transition hover:border-[var(--color-accent)]/40">
@@ -104,16 +112,23 @@ function StatCard({
   value,
   href,
   accent,
+  badge,
 }: {
   label: string;
   value: number;
   href: string;
   accent?: boolean;
+  badge?: number;
 }) {
   return (
     <Link href={href} className="admin-card transition hover:border-[var(--color-accent)]/30">
       <p className="text-xs font-medium uppercase tracking-wider text-[var(--color-muted)]">
         {label}
+        {badge != null && badge > 0 && (
+          <span className="ml-2 rounded-full bg-amber-500/20 px-2 py-0.5 text-amber-400">
+            {badge} new
+          </span>
+        )}
       </p>
       <p className={`mt-2 font-display text-4xl font-bold ${accent ? "text-amber-400" : ""}`}>
         {value}

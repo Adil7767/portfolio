@@ -8,6 +8,13 @@
       "when": 1779349714576,
       "tag": "0000_romantic_skrulls",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779360000000,
+      "tag": "0001_analytics_events",
+      "breakpoints": true
     }
   ]
 }
