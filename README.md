@@ -1,72 +1,103 @@
-# Getting Started with Create React App
+# Adil Mustafa — Portfolio (Next.js)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Professional portfolio built with **Next.js 15**, **Supabase PostgreSQL**, **Drizzle ORM**, and a password-protected **owner dashboard** at `/admin`.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Modern dark portfolio UI with animations
+- Dynamic content from PostgreSQL (projects, profile, services, skills, social links)
+- Contact form messages stored in the database
+- Owner dashboard: `/admin` (password protected)
+  - **Site content** (`/admin/site`) — resume PDF upload, bio, Cloudinary images, social, services, skills
+  - **Projects** (`/admin/projects`) — CRUD, **Active** (public) vs **Archived** (hidden), quick toggle
+  - **Site content** — services, skills, and social links also support active/archived
+  - View contact messages on dashboard
 
-### `npm start`
+## Setup
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1. Install dependencies
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+npm install
+```
 
-### `npm test`
+### 2. Environment variables
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Copy `.env.example` to `.env.local` and fill in values (Supabase URL, keys, database URLs, admin password).
 
-### `npm run build`
+### 3. Database migrations
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npm run db:generate   # generate SQL from schema
+npm run db:migrate    # apply migrations to Supabase
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Or push schema directly:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm run db:push
+```
 
-### `npm run eject`
+### 4. Seed initial data
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm run db:seed
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 5. Run locally
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm run dev
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Portfolio: [http://localhost:3000](http://localhost:3000)
+- Owner login: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 
-## Learn More
+Admin sign-in uses `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env` (or `.env.local`).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Scripts
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run db:generate` | Generate Drizzle migrations |
+| `npm run db:migrate` | Run migrations |
+| `npm run db:push` | Push schema without migration files |
+| `npm run db:seed` | Seed portfolio data |
 
-### Code Splitting
+## Schema
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Tables: `profile`, `projects`, `services`, `skills`, `social_links`, `contact_messages`
 
-### Analyzing the Bundle Size
+See `drizzle/schema.ts` for the full schema.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Auth & routing
 
-### Making a Progressive Web App
+- Admin logic lives in **`proxy.ts`** (Next 16 convention).
+- **`middleware.ts`** re-exports `proxy` for Next.js 15.5 compatibility.
+- Dashboard routes also use a **server layout** guard at `app/admin/(dashboard)/layout.tsx`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Resume (public)
 
-### Advanced Configuration
+- Upload PDF in **`/admin/site`** → Cloudinary → auto-saved to database.
+- Public site **Download resume** button uses **`/resume`**, which redirects to the latest stored file.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Cloudinary uploads
 
-### Deployment
+Admin uploads go through `/api/admin/upload` (authenticated) into folder `adil-portfolio/`:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+| Subfolder | Use |
+|-----------|-----|
+| `resume` | PDF resume |
+| `projects` | Project screenshots |
+| `avatar` / `hero` | Profile images |
+| `icons` / `services` | Skill & service icons |
 
-### `npm run build` fails to minify
+Set `CLOUDINARY_*` vars in `.env` (see `.env.example`).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# portfolio
-# portfolio
+## Security notes
+
+- Change `ADMIN_PASSWORD` and `SESSION_SECRET` before deploying
+- Never commit `.env.local`
+- Rotate Supabase keys if they were exposed
