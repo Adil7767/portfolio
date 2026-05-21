@@ -7,6 +7,7 @@ import AdminShell from "@/components/admin/AdminShell";
 import ItemEditor from "@/components/admin/ItemEditor";
 import MediaUpload from "@/components/admin/MediaUpload";
 import { fetchAdminJson } from "@/lib/admin-fetch";
+import { DEFAULT_HERO_ROLES_CSV } from "@/lib/hero-roles";
 import { parseResponseBody } from "@/lib/parse-response";
 
 type ProfileForm = {
@@ -36,7 +37,7 @@ const profileDefaults: ProfileForm = {
   resumeUrl: "",
   avatarUrl: "/mine.png",
   heroImageUrl: "/mine.png",
-  roles: "Full Stack Developer,Front End Engineer,Mobile App Developer",
+  roles: DEFAULT_HERO_ROLES_CSV,
   availabilityLabel: "Open to new opportunities",
   servicesHeading: "What I Offer",
   projectsHeading: "Selected Work",
@@ -272,7 +273,7 @@ export default function AdminSitePage() {
                 <Field label="Tagline" value={profile.tagline} onChange={(v) => setProfile({ ...profile, tagline: v })} className="sm:col-span-2" />
                 <div className="sm:col-span-2">
                   <label className="mb-1 block text-xs font-medium text-[var(--color-muted)]">
-                    Rotating roles (comma-separated)
+                    Rotating roles (comma-separated — first = hero default)
                   </label>
                   <input
                     value={profile.roles}

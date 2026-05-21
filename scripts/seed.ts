@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "../drizzle/schema";
+import { DEFAULT_HERO_ROLES_CSV } from "@/lib/hero-roles";
 import { projectsCatalog } from "./projects-catalog";
 import { skillIcons, serviceIcons } from "../lib/tech-icons";
 
@@ -71,18 +72,17 @@ async function seed() {
 
   await db.insert(schema.profile).values({
     name: "Adil Mustafa",
-    headline: "Full Stack Developer at Fusion Dev Pvt Ltd",
+    headline: "Full Stack Developer at Fusionwave Pvt Ltd",
     tagline:
       "I build production-ready web & mobile products — React Native, Next.js, Node.js, TypeScript.",
-    bio: "I'm a self-taught full stack developer with experience shipping features from ideation to production. I specialize in turning wireframes and design flows into high-performance applications, with strong focus on user experience, reusable code, and scalable backends. Currently working at Fusion Dev Pvt Ltd, Lahore, delivering client and product work across SaaS, mobile, and API platforms.",
+    bio: "I'm a self-taught full stack developer with experience shipping features from ideation to production. I specialize in turning wireframes and design flows into high-performance applications, with strong focus on user experience, reusable code, and scalable backends. Currently working at Fusionwave Pvt Ltd, Lahore, delivering client and product work across SaaS, mobile, and API platforms.",
     email: "dev.adil786@gmail.com",
     location: "Lahore, Punjab, Pakistan",
     resumeUrl:
       "https://drive.google.com/file/d/1JWgiA8-BY2N7NKYMROjB8EaVafZQjzVX/view?usp=sharing",
     avatarUrl: "/mine.png",
     heroImageUrl: "/mine.png",
-    roles:
-      "Full Stack Developer,Front End Developer,React Native Engineer,MERN Stack Developer,Next.js Specialist",
+    roles: DEFAULT_HERO_ROLES_CSV,
     availabilityLabel: "Open to collaborations & opportunities",
     servicesHeading: "What I Offer",
     projectsHeading: "Featured Work",

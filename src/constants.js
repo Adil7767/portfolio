@@ -123,9 +123,9 @@ export const projectsData = [
     image: oono
   },
   {
-    name: "Shutterlift Next.js App and Node.js Backend for FusionDev",
+    name: "Shutterlift Next.js App and Node.js Backend for Fusionwave",
     link: "https://github.com/UmarAsif737/gallery-maker",
-    description: "Developed a dynamic Next.js application with a robust Node.js backend for FusionDev's Shutterlift project, facilitating seamless user interactions.",
+    description: "Developed a dynamic Next.js application with a robust Node.js backend for Fusionwave's Shutterlift project, facilitating seamless user interactions.",
     image: shutter
   },
   {

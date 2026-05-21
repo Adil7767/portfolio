@@ -226,9 +226,9 @@ export const projectsCatalog: ProjectSeed[] = [
     featured: false,
   },
   {
-    name: "Shutterlift (Fusion Dev)",
+    name: "Shutterlift (Fusionwave)",
     description:
-      "Dynamic Next.js gallery application with Node.js backend for Fusion Dev client delivery.",
+      "Dynamic Next.js gallery application with Node.js backend for Fusionwave client delivery.",
     link: "https://github.com/UmarAsif737/gallery-maker",
     imageUrl: gh("gallery-maker"),
     tags: "Next.js,Node.js",

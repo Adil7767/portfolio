@@ -38,6 +38,8 @@ body {
 
 .gradient-text {
   color: var(--color-accent-soft);
+  line-height: 1.2;
+  padding-bottom: 0.06em;
   background: linear-gradient(
     120deg,
     color-mix(in srgb, var(--color-accent-soft) 85%, white) 0%,
@@ -46,6 +48,10 @@ body {
   );
   -webkit-background-clip: text;
   background-clip: text;
+}
+
+.hero-role-rotator {
+  min-height: 1.2em;
 }
 
 @supports (-webkit-background-clip: text) or (background-clip: text) {

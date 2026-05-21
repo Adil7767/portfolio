@@ -2,9 +2,10 @@
 
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Download, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import { parseHeroRoles } from "@/lib/hero-roles";
 import type { profile } from "@/drizzle/schema";
 import type { socialLinks } from "@/drizzle/schema";
 
@@ -13,18 +14,40 @@ type Social = typeof socialLinks.$inferSelect;
 
 function RoleRotator({ roles }: { roles: string[] }) {
   const [index, setIndex] = useState(0);
+  const rolesKey = roles.join("\0");
+
+  useEffect(() => {
+    setIndex(0);
+  }, [rolesKey]);
 
   useEffect(() => {
     if (roles.length <= 1) return;
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % roles.length);
-    }, 3200);
+    }, 2800);
     return () => clearInterval(id);
-  }, [roles.length]);
+  }, [roles.length, rolesKey]);
+
+  const role = roles[index] ?? roles[0];
 
   return (
-    <span className="gradient-text inline-block min-h-[1.2em]">
-      {roles[index] ?? roles[0]}
+    <span
+      className="hero-role-rotator relative block w-full overflow-visible"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={`${index}-${role}`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="gradient-text block font-display text-4xl font-bold leading-snug sm:text-5xl lg:text-[3.5rem]"
+        >
+          {role}
+        </motion.span>
+      </AnimatePresence>
     </span>
   );
 }
@@ -38,16 +61,13 @@ export default function Hero({
   socialLinks: Social[];
   projectCount?: number;
 }) {
-  const roles = (p?.roles ?? "Full Stack Developer,Front End Engineer,Mobile Developer")
-    .split(",")
-    .map((r) => r.trim())
-    .filter(Boolean);
+  const roles = parseHeroRoles(p?.roles);
 
   const avatar = p?.avatarUrl || "/avatar-crop.png";
   const heroImg = p?.heroImageUrl || p?.avatarUrl || "/avatar-crop.png";
 
   return (
-    <section id="home" className="relative min-h-screen overflow-hidden mesh-bg noise-overlay pt-28 pb-24">
+    <section id="home" className="relative min-h-screen overflow-x-hidden mesh-bg noise-overlay pt-28 pb-24">
       <div className="relative mx-auto grid max-w-6xl items-center gap-16 px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
         <motion.div
           initial={{ opacity: 1, y: 0 }}
@@ -62,10 +82,11 @@ export default function Hero({
             </p>
           )}
 
-          <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.5rem]">
-            Building digital products as{" "}
-            <br className="hidden sm:block" />
-            <RoleRotator roles={roles.length ? roles : ["Full Stack Developer"]} />
+          <h1 className="font-display space-y-1 font-bold tracking-tight">
+            <span className="block text-4xl leading-snug text-[var(--color-foreground)] sm:text-5xl lg:text-[3.25rem]">
+              I build digital products as a
+            </span>
+            <RoleRotator roles={roles} />
           </h1>
 
           <p className="mt-6 max-w-lg text-lg text-[var(--color-muted)]">

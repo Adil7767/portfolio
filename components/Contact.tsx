@@ -175,7 +175,7 @@ export default function Contact({
 
       <footer className="mx-auto mt-24 max-w-6xl border-t border-[var(--color-border)] px-6 py-10 text-center text-sm text-[var(--color-muted)]">
         <p>
-          © {new Date().getFullYear()} {p?.name ?? "Adil Mustafa"}. Built with Next.js & Supabase.
+          © {new Date().getFullYear()} {p?.name ?? "Adil Mustafa"}.
         </p>
       </footer>
     </section>
