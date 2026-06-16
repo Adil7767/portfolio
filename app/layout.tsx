@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import ThemeInit from "@/components/ThemeInit";
+import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,7 +15,11 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Adil Mustafa | Full Stack Developer",
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: "Adil Mustafa | Full Stack Developer",
+    template: "%s",
+  },
   description:
     "Portfolio of Adil Mustafa — Full Stack Developer building web, mobile, and cloud-native products.",
   manifest: "/manifest.json",
@@ -24,11 +29,6 @@ export const metadata: Metadata = {
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
     apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
-  },
-  openGraph: {
-    title: "Adil Mustafa | Full Stack Developer",
-    description: "Web, mobile, and backend engineering portfolio.",
-    type: "website",
   },
 };
 

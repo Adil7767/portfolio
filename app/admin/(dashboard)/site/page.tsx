@@ -331,7 +331,12 @@ export default function AdminSitePage() {
             <section className="admin-card">
               <h3 className="text-lg font-semibold">About & contact</h3>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Field label="Email" value={profile.email} onChange={(v) => setProfile({ ...profile, email: v })} />
+                <div>
+                  <Field label="Email" value={profile.email} onChange={(v) => setProfile({ ...profile, email: v })} />
+                  <p className="mt-1 text-xs text-[var(--color-muted)]">
+                    Shown on the contact page and receives contact form notifications (EmailJS).
+                  </p>
+                </div>
                 <Field label="Location" value={profile.location} onChange={(v) => setProfile({ ...profile, location: v })} />
                 <div className="sm:col-span-2">
                   <label className="mb-1 block text-xs font-medium text-[var(--color-muted)]">Bio</label>

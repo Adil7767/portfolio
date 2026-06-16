@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import AnalyticsBeacon from "@/components/AnalyticsBeacon";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
@@ -5,9 +6,15 @@ import About from "@/components/About";
 import Services from "@/components/Services";
 import Projects from "@/components/Projects";
 import Contact from "@/components/Contact";
-import { getPortfolioData } from "@/lib/data";
+import { getPortfolioData, getProfile } from "@/lib/data";
+import { buildPortfolioMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const profile = await getProfile();
+  return buildPortfolioMetadata(profile);
+}
 
 export default async function HomePage() {
   const data = await getPortfolioData();

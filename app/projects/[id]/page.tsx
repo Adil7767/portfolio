@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import ProjectCover from "@/components/ui/ProjectCover";
 import ProjectDetailTracker from "@/components/ProjectDetailTracker";
 import { getProfile, getPublishedProjectById } from "@/lib/data";
+import { buildProjectMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -13,19 +14,13 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const project = await getPublishedProjectById(Number(id));
+  const [project, profile] = await Promise.all([
+    getPublishedProjectById(Number(id)),
+    getProfile(),
+  ]);
   if (!project) return { title: "Project not found" };
 
-  return {
-    title: `${project.name} | Adil Mustafa`,
-    description: project.description.slice(0, 160),
-    openGraph: {
-      title: project.name,
-      description: project.description.slice(0, 160),
-      type: "article",
-      ...(project.imageUrl ? { images: [{ url: project.imageUrl }] } : {}),
-    },
-  };
+  return buildProjectMetadata(project, profile?.name);
 }
 
 export default async function ProjectDetailPage({ params }: Props) {
