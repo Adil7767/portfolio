@@ -3,7 +3,7 @@
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Download, Sparkles } from "lucide-react";
+import { ArrowRight, Download, ExternalLink, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { parseHeroRoles } from "@/lib/hero-roles";
 import type { profile } from "@/drizzle/schema";
@@ -104,10 +104,16 @@ export default function Hero({
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
             {p?.resumeUrl && (
-              <a href="/resume" className="btn-primary">
-                <Download size={18} />
-                Download resume
-              </a>
+              <>
+                <a href="/resume" target="_blank" rel="noopener noreferrer" className="btn-primary">
+                  <ExternalLink size={18} />
+                  View resume
+                </a>
+                <a href="/resume?download=1" className="btn-secondary">
+                  <Download size={18} />
+                  Download
+                </a>
+              </>
             )}
             <Link href="#projects" className="btn-secondary group">
               View projects

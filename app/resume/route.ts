@@ -6,7 +6,6 @@ import { cloudinary } from "@/lib/cloudinary-server";
 export const dynamic = "force-dynamic";
 
 function signedCloudinaryUrl(rawUrl: string): string {
-  // Extract public_id from: https://res.cloudinary.com/CLOUD/raw/upload/vVERSION/PUBLIC_ID
   const match = rawUrl.match(/\/raw\/upload\/(?:v\d+\/)?(.+)$/);
   if (!match) return rawUrl;
   const publicId = match[1];
@@ -14,11 +13,13 @@ function signedCloudinaryUrl(rawUrl: string): string {
     resource_type: "raw",
     sign_url: true,
     secure: true,
-    expires_at: Math.floor(Date.now() / 1000) + 60 * 10, // 10-minute window
+    expires_at: Math.floor(Date.now() / 1000) + 60 * 10,
   });
 }
 
-/** Public resume download — always uses latest URL from database */
+/** Public resume — proxied so Content-Disposition is fully controlled.
+ *  ?download=1  → forces file download
+ *  (default)    → opens inline in the browser PDF viewer */
 export async function GET(request: Request) {
   const profile = await getProfile();
   const url = profile?.resumeUrl?.trim();
@@ -37,12 +38,26 @@ export async function GET(request: Request) {
     url.includes("res.cloudinary.com") &&
     (url.includes("/raw/upload/") || url.includes("resource_type=raw"));
 
-  const redirectUrl = isCloudinaryRaw ? signedCloudinaryUrl(url) : url;
+  const fetchUrl = isCloudinaryRaw ? signedCloudinaryUrl(url) : url;
 
-  return NextResponse.redirect(redirectUrl, {
-    status: 302,
+  const upstream = await fetch(fetchUrl);
+  if (!upstream.ok) {
+    return NextResponse.json({ error: "Resume not available" }, { status: 502 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const forceDownload = searchParams.get("download") === "1";
+
+  const disposition = forceDownload
+    ? 'attachment; filename="Adil-Mustafa-Resume.pdf"'
+    : 'inline; filename="Adil-Mustafa-Resume.pdf"';
+
+  return new NextResponse(upstream.body, {
+    status: 200,
     headers: {
-      "Content-Disposition": 'inline; filename="Adil-Mustafa-Resume.pdf"',
+      "Content-Type": "application/pdf",
+      "Content-Disposition": disposition,
+      "Cache-Control": "private, max-age=300",
     },
   });
 }
